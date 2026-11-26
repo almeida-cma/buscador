@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BuscaWeb — Buscador Acadêmico, Auditoria SEO e Rankings</title>
+<style>
+  :root{--b:#e2e8f0;--bg:#f8fafc;--c:#fff;--t:#0f172a;--m:#475569;--p:#1d4ed8;--g:#059669;--w:#d97706;--r:#dc2626}
+  body.proj{font-size:18px;--bg:#fff;--b:#94a3b8}
+  *{box-sizing:border-box} body{margin:0;font:14px/1.5 system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--t)}
+  .wrap{max-width:1240px;margin:0 auto;padding:12px 16px}
+  header{background:var(--c);border-bottom:1px solid var(--b);position:sticky;top:0;z-index:20}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap} .between{justify-content:space-between}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+  .card{background:var(--c);border:1px solid var(--b);border-radius:8px;padding:12px;margin-bottom:12px}
+  h1,h2,h3,h4{margin:0 0 8px} .muted{color:var(--m)} .sm{font-size:12px} .hide{display:none!important}
+  .btn{border:1px solid var(--b);background:var(--c);color:var(--t);padding:6px 11px;border-radius:6px;cursor:pointer;font-weight:600;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .bp{background:var(--p);color:#fff;border-color:var(--p)} .bg{background:var(--g);color:#fff;border-color:var(--g)}
+  .bw{background:var(--w);color:#fff;border-color:var(--w)} .br{background:var(--r);color:#fff;border-color:var(--r)}
+  .nav-btn.on,.subtab.on{background:#eff6ff;color:var(--p);border-color:var(--p)}
+  input,select,textarea{width:100%;padding:6px 8px;border:1px solid var(--b);border-radius:6px;font:inherit;background:#fff}
+  .in-sm{width:auto;min-width:140px} .in-num{width:76px;text-align:right}
+  table{width:100%;border-collapse:collapse;font-size:13px} th,td{padding:7px 8px;border-bottom:1px solid var(--b);text-align:left;vertical-align:top}
+  th{background:#f1f5f9;font-size:11px;text-transform:uppercase;color:var(--m)}
+  .badge{display:inline-block;padding:2px 7px;border-radius:99px;font-size:11px;font-weight:700;background:#e2e8f0;color:#334155;white-space:nowrap}
+  .bb{background:#dbeafe;color:#1e40af} .bgb{background:#dcfce7;color:#166534} .bwb{background:#fef3c7;color:#92400e} .brb{background:#fee2e2;color:#991b1b} .bpb{background:#f3e8ff;color:#6b21a8}
+  .banner{background:#fef3c7;border-bottom:1px solid #fcd34d;padding:6px 16px;font-size:13px}
+  .hero{max-width:720px;margin:28px auto;text-align:center} .hero.cmp{margin:0 0 12px;max-width:100%;text-align:left}
+  .hero.cmp .hero-hide{display:none} mark{background:#fef08a;padding:0 2px}
+  .modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:12px;z-index:50}
+  .mdlg{background:var(--c);border-radius:8px;width:100%;max-width:920px;max-height:92vh;overflow:auto;padding:16px}
+  .bar{height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden} .bar>div{height:100%;background:var(--g)}
+  .toast{position:fixed;bottom:14px;right:14px;background:#0f172a;color:#fff;padding:8px 14px;border-radius:6px;font-size:13px;z-index:99}
+  @media print{header,.banner,.no-print{display:none!important}.modal{position:static;background:none;padding:0}.mdlg{max-height:none;box-shadow:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap row between">
+    <div class="row">
+      <strong style="font-size:19px"><span style="color:var(--p)">Busca</span><span style="color:var(--g)">Web</span></strong>
+      <span class="badge bb">Lab SEO Acadêmico</span>
+    </div>
+    <nav class="row">
+      <button class="btn nav-btn on" data-view="search">Buscador</button>
+      <button class="btn nav-btn" data-view="rankings">Rankings (3)</button>
+      <button class="btn nav-btn" data-view="admin">Painel do Professor</button>
+    </nav>
+    <button class="btn" id="btn-proj-mode">Projetor: OFF</button>
+  </div>
+</header>
+
+<div id="demo-banner" class="banner hide">
+  <div class="wrap row between">
+    <span><strong>Modo Demonstração:</strong> Existem dados marcados como <code>[DEMO]</code> para ilustrar buscas e rankings.</span>
+    <button class="btn bw" id="btn-clear-demo">Remover Dados Demo</button>
+  </div>
+</div>
+
+<main class="wrap">
+  <!-- VIEW 1: BUSCADOR -->
+  <section id="v-search">
+    <div id="hero" class="hero">
+      <h1 class="hero-hide" style="font-size:40px"><span style="color:var(--p)">Busca</span><span style="color:var(--g)">Web</span></h1>
+      <p class="muted hero-hide">Buscador educacional simulado para projetos do GitHub Pages. Não representa o ranking real do Google.</p>
+      <form id="f-search" class="row" style="margin:12px 0">
+        <input id="q-in" type="search" style="flex:1" placeholder="Pesquise temas, serviços ou palavras-chave dos projetos...">
+        <button class="btn bp" type="submit">Pesquisar</button>
+        <button class="btn hide" type="button" id="btn-q-clear">Limpar</button>
+      </form>
+      <div class="row" style="justify-content:center" id="q-chips">
+        <button type="button" class="btn sm chip" data-q="cursos de programação para jovens">Cursos de programação para jovens</button>
+        <button type="button" class="btn sm chip" data-q="desenvolvimento de sites">Desenvolvimento de sites</button>
+        <button type="button" class="btn sm chip" data-q="serviços de informática">Serviços de informática</button>
+        <button type="button" class="btn sm chip" data-q="educação tecnológica">Educação tecnológica</button>
+        <button type="button" class="btn sm chip" data-q="soluções digitais para empresas">Soluções digitais para empresas</button>
+      </div>
+    </div>
+    <div id="q-out" class="hide">
+      <div class="row between" style="margin-bottom:8px">
+        <span id="q-meta" class="muted"></span>
+        <label class="row sm"><input type="checkbox" id="chk-dev" style="width:auto"> Incluir propostas em desenvolvimento</label>
+      </div>
+      <div id="q-list"></div>
+    </div>
+  </section>
+
+  <!-- VIEW 2: RANKINGS (PRIORIDADE) -->
+  <section id="v-rankings" class="hide">
+    <div class="row between" style="margin-bottom:10px">
+      <div>
+        <h2>Classificações Acadêmicas</h2>
+        <p class="muted sm">Ranking simulado educacional. Projetos com cobertura abaixo do mínimo não entram no pódio oficial.</p>
+      </div>
+      <div class="row">
+        <select id="rk-round" class="in-sm"><option value="latest">Mais recente por projeto</option></select>
+        <input id="rk-query" class="in-sm" placeholder="Termo de pesquisa (opcional)">
+        <button class="btn bp" id="btn-rk-go">Atualizar</button>
+      </div>
+    </div>
+
+    <div class="row" style="margin-bottom:10px">
+      <button class="btn subtab on" data-rk="pos">1. Melhor Posicionamento</button>
+      <button class="btn subtab" data-rk="evo">2. Maior Evolução</button>
+      <button class="btn subtab" data-rk="cat">3. Destaques por Categoria</button>
+      <button class="btn subtab" data-rk="cmp">Comparar Rodadas</button>
+    </div>
+
+    <div id="rk-pos"></div>
+    <div id="rk-evo" class="hide"></div>
+    <div id="rk-cat" class="hide"></div>
+    <div id="rk-cmp" class="hide"></div>
+  </section>
+
+  <!-- VIEW 3: PAINEL DO PROFESSOR -->
+  <section id="v-admin" class="hide">
+    <div class="row between" style="margin-bottom:10px">
+      <h2>Painel do Professor — Administração Web</h2>
+      <div class="row">
+        <button class="btn bg" id="btn-jump-audit">EXECUTAR AUDITORIA DA TURMA</button>
+        <button class="btn bp" id="btn-new-proj">+ Cadastrar Projeto</button>
+      </div>
+    </div>
+    <div id="kpis" class="grid" style="margin-bottom:12px"></div>
+    <div class="row" style="margin-bottom:10px">
+      <button class="btn subtab on" data-adm="catalog">Catálogo</button>
+      <button class="btn subtab" data-adm="audit">Auditorias por Aula</button>
+      <button class="btn subtab" data-adm="settings">Pesos &amp; Worker</button>
+      <button class="btn subtab" data-adm="json">JSON &amp; Backup</button>
+    </div>
+
+    <div id="adm-catalog" class="card">
+      <div class="row between" style="margin-bottom:8px">
+        <input id="cat-q" class="in-sm" placeholder="Filtrar equipe, projeto ou URL...">
+        <select id="cat-st" class="in-sm">
+          <option value="all">Todos status</option><option value="ativo">Ativo</option>
+          <option value="em_desenvolvimento">Em desenvolvimento</option><option value="inativo">Inativo</option><option value="arquivado">Arquivado</option>
+        </select>
+      </div>
+      <div id="cat-alerts"></div>
+      <div id="cat-table" style="overflow-x:auto"></div>
+    </div>
+
+    <div id="adm-audit" class="hide">
+      <div class="card">
+        <h3>Nova Rodada de Auditoria da Turma</h3>
+        <div class="grid">
+          <div><label class="sm">Identificação da Aula</label><input id="aud-label" placeholder="Ex: Aula 05 — SEO On-Page"></div>
+          <div><label class="sm">Pesquisa de referência</label><input id="aud-query" placeholder="Ex: cursos de programação para jovens"></div>
+          <div class="row" style="align-items:flex-end"><button class="btn bg" id="btn-run-round" style="width:100%">EXECUTAR AUDITORIA DA TURMA</button></div>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <label class="row sm"><input type="checkbox" id="aud-psi" checked style="width:auto"> PageSpeed Insights (Mobile + Desktop)</label>
+          <label class="row sm"><input type="checkbox" id="aud-html" checked style="width:auto"> HTML On-page (requer Worker)</label>
+        </div>
+        <div id="aud-prog" class="card hide" style="margin-top:10px;background:#f8fafc">
+          <div class="row between">
+            <strong id="aud-status">Processando...</strong>
+            <div class="row">
+              <span id="aud-cnt">0/0</span>
+              <button class="btn bw hide" id="btn-retry-fail">Repetir Apenas Falhas</button>
+              <button class="btn br hide" id="btn-cancel-aud">Interromper</button>
+            </div>
+          </div>
+          <div class="bar" style="margin:6px 0"><div id="aud-fill" style="width:0%"></div></div>
+          <div id="aud-queue" class="grid"></div>
+        </div>
+      </div>
+      <div class="card"><h3>Rodadas Registradas</h3><div id="aud-rounds" style="overflow-x:auto"></div></div>
+    </div>
+
+    <div id="adm-settings" class="hide">
+      <div class="grid">
+        <div class="card">
+          <h3>Pesos — Score de Qualidade (soma = 100%)</h3>
+          <div id="qw-box"></div>
+          <p class="sm">Total: <strong id="qw-tot">100%</strong></p>
+          <button class="btn bp" id="btn-save-qw">Salvar Pesos de Qualidade</button>
+          <button class="btn" id="btn-rst-qw">Padrão</button>
+        </div>
+        <div class="card">
+          <h3>Pesos — Relevância <code>R = wK·K + wC·C + wS·S + wU·U</code></h3>
+          <div id="rw-box"></div>
+          <p class="sm">Total: <strong id="rw-tot">100%</strong></p>
+          <button class="btn bp" id="btn-save-rw">Salvar Pesos de Relevância</button>
+          <button class="btn" id="btn-rst-rw">Padrão</button>
+          <hr style="border:0;border-top:1px solid var(--b);margin:12px 0">
+          <h3>Worker &amp; Cobertura</h3>
+          <label class="sm">URL do Worker Intermediário (opcional)</label>
+          <input id="cfg-worker" placeholder="https://buscaweb-worker.usuario.workers.dev">
+          <label class="sm" style="display:block;margin-top:6px">Cobertura mínima p/ Ranking Oficial (%)</label>
+          <input id="cfg-cov" type="number" min="10" max="100" value="50">
+          <div class="row" style="margin-top:8px">
+            <button class="btn bp" id="btn-save-cfg">Salvar Integração</button>
+            <button class="btn" id="btn-test-worker">Testar Worker</button>
+            <span id="worker-msg" class="sm"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="adm-json" class="hide">
+      <div class="grid">
+        <div class="card">
+          <h3>Exportar &amp; Backup Local</h3>
+          <div id="db-stats" class="sm muted" style="margin-bottom:8px"></div>
+          <div class="row">
+            <button class="btn bp" id="btn-exp-json">Exportar JSON Completo</button>
+            <button class="btn" id="btn-load-demo">Recarregar Demo</button>
+            <button class="btn br" id="btn-rst-db">Zerar Banco</button>
+          </div>
+          <p class="sm muted" style="margin-top:8px">Armazenado em <code>localStorage</code> na chave <code>buscaweb:state:v1</code> (~5 MB máx.). Sem chaves secretas no JSON.</p>
+        </div>
+        <div class="card">
+          <h3>Importar JSON</h3>
+          <input type="file" id="imp-file" accept=".json,application/json">
+          <div class="row" style="margin:8px 0">
+            <label class="row sm"><input type="radio" name="imp-mode" value="merge" checked style="width:auto"> Mesclar sem duplicar</label>
+            <label class="row sm"><input type="radio" name="imp-mode" value="replace" style="width:auto"> Substituir tudo</label>
+          </div>
+          <button class="btn bg" id="btn-imp-json">Importar Arquivo</button>
+          <div id="imp-msg" class="sm" style="margin-top:6px"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- MODAL PROJETO -->
+<div id="m-proj" class="modal hide">
+  <div class="mdlg">
+    <div class="row between" style="margin-bottom:8px"><h3 id="mp-title">Projeto</h3><button class="btn" data-close="m-proj">X</button></div>
+    <form id="f-proj">
+      <input type="hidden" id="p-id">
+      <div class="grid">
+        <div><label class="sm">Equipe *</label><input id="p-team" required></div>
+        <div><label class="sm">Projeto *</label><input id="p-name" required></div>
+        <div><label class="sm">Status *</label>
+          <select id="p-status"><option value="ativo">Ativo</option><option value="em_desenvolvimento">Proposta em desenvolvimento</option><option value="inativo">Inativo</option><option value="arquivado">Arquivado</option></select>
+        </div>
+        <div><label class="sm">Categoria *</label><input id="p-cat" required></div>
+      </div>
+      <div style="margin-top:8px"><label class="sm">URL GitHub Pages (HTTP/HTTPS)</label>
+        <div class="row"><input id="p-url" type="url" style="flex:1" placeholder="https://usuario.github.io/projeto/"><button type="button" class="btn" id="btn-test-url">Testar URL</button></div>
+        <div id="p-url-msg" class="sm"></div>
+      </div>
+      <div style="margin-top:8px"><label class="sm">Descrição *</label><textarea id="p-desc" rows="2" required></textarea></div>
+      <div class="grid" style="margin-top:8px">
+        <div><label class="sm">Público-alvo</label><input id="p-aud"></div>
+        <div><label class="sm">Objetivo</label><input id="p-obj"></div>
+        <div><label class="sm">Palavras-chave principais (vírgula) *</label><input id="p-kp" required></div>
+        <div><label class="sm">Palavras-chave secundárias (vírgula)</label><input id="p-ks"></div>
+      </div>
+      <div class="row" style="justify-content:flex-end;margin-top:12px">
+        <button type="button" class="btn" data-close="m-proj">Cancelar</button>
+        <button type="submit" class="btn bp">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL AVALIAÇÃO MANUAL -->
+<div id="m-man" class="modal hide">
+  <div class="mdlg" style="max-width:540px">
+    <div class="row between"><h3>Avaliação Manual Complementar</h3><button class="btn" data-close="m-man">X</button></div>
+    <p id="man-sub" class="muted sm"></p>
+    <form id="f-man">
+      <input type="hidden" id="man-pid">
+      <div class="grid">
+        <div><label class="sm">UX e Usabilidade (0-100)</label><input id="man-ux" type="number" min="0" max="100"></div>
+        <div><label class="sm">Identidade Visual (0-100)</label><input id="man-vis" type="number" min="0" max="100"></div>
+        <div><label class="sm">Clareza / Público (0-100)</label><input id="man-cla" type="number" min="0" max="100"></div>
+        <div><label class="sm">Conversão e CTAs (0-100)</label><input id="man-cta" type="number" min="0" max="100"></div>
+      </div>
+      <div style="margin-top:8px"><label class="sm">Observações</label><textarea id="man-notes" rows="2"></textarea></div>
+      <div class="row" style="justify-content:flex-end;margin-top:10px">
+        <button type="button" class="btn" data-close="m-man">Cancelar</button>
+        <button type="submit" class="btn bp">Aplicar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL RELATÓRIO INDIVIDUAL -->
+<div id="m-rep" class="modal hide">
+  <div class="mdlg">
+    <div class="row between no-print" style="margin-bottom:8px">
+      <h3>Relatório Individual</h3>
+      <div class="row">
+        <button class="btn" id="btn-rep-json">Exportar JSON</button>
+        <button class="btn" onclick="window.print()">Imprimir / PDF</button>
+        <button class="btn" data-close="m-rep">X</button>
+      </div>
+    </div>
+    <div id="rep-body"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const KEY = "buscaweb:state:v1", BKP = "buscaweb:backup:pre-import", VER = "1.0.0";
+  const STOP = new Set(["a","o","as","os","um","uma","de","da","do","das","dos","em","no","na","por","para","com","sem","e","ou","que","se","ao","mais","como"]);
+  const DEF_SET = {
+    workerUrl: "", minCoverageForOfficial: 50, maxConcurrency: 2, requestDelayMs: 600,
+    qualityWeights: { seoOnPage:20, contentKeywords:20, uxUsability:15, responsiveness:15, technicalPerformance:10, visualIdentity:10, conversionCta:10 },
+    relevanceWeights: { keywords:35, content:25, seo:20, ux:20 }
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => s == null ? "" : String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  const norm = (s) => !s ? "" : String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ").trim();
+  const tok = (s) => norm(s).split(" ").filter(w => w.length >= 2 && !STOP.has(w));
+  const uid = (p) => p + "_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,6);
+  const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+  const fmtDt = (iso) => !iso ? "—" : new Intl.DateTimeFormat("pt-BR",{dateStyle:"short",timeStyle:"short"}).format(new Date(iso));
+
+  function toast(msg) {
+    const d = document.createElement("div"); d.className = "toast"; d.textContent = msg;
+    document.body.appendChild(d); setTimeout(() => d.remove(), 3800);
+  }
+
+  function validateUrl(raw) {
+    if (!raw || !raw.trim()) return { ok:false, msg:"URL ausente." };
+    try {
+      const u = new URL(raw.trim());
+      if (u.protocol !== "http:" && u.protocol !== "https:") return { ok:false, msg:"Apenas HTTP/HTTPS." };
+      const h = u.hostname.toLowerCase();
+      const priv = h==="localhost"||h.endsWith(".local")||h==="::1"||h==="0.0.0.0"||/^127\.|^10\.|^192\.168\.|^169\.254\.|^172\.(1[6-9]|2\d|3[01])\./.test(h)||!h.includes(".");
+      if (priv) return { ok:false, msg:"Host privado/local bloqueado (anti-SSRF)." };
+      return { ok:true, url:u.toString(), gh:h.endsWith(".github.io") };
+    } catch { return { ok:false, msg:"Formato de URL inválido." }; }
+  }
+
+  /* ==================== PERSISTÊNCIA & DEMO ==================== */
+  function emptyState() {
+    const now = new Date().toISOString();
+    return { schemaVersion:1, system:"BuscaWeb", projects:[], evaluations:[], rounds:[], searches:[], rankingHistory:[], settings:JSON.parse(JSON.stringify(DEF_SET)), metadata:{createdAt:now,lastModifiedAt:now,algorithmVersion:VER} };
+  }
+
+  function demoSeed() {
+    const ago = (d) => new Date(Date.now() - d*86400000).toISOString();
+    const ps = [
+      { id:"dp1", teamName:"Equipe BitJovem [DEMO]", projectName:"CodeStart Jovem", url:"https://exemplo-demo.github.io/codestart/", description:"Cursos gratuitos de programação para jovens em HTML, CSS e lógica.", category:"Educação Tecnológica", targetAudience:"Estudantes 13-19 anos", objective:"Inscrições em oficinas", primaryKeywords:["cursos de programação para jovens","educação tecnológica"], secondaryKeywords:["html","css","lógica"], status:"ativo", createdAt:ago(20), updatedAt:ago(2), isDemo:true },
+      { id:"dp2", teamName:"Equipe PixelCraft [DEMO]", projectName:"WebStudio Escolar", url:"https://exemplo-demo.github.io/webstudio/", description:"Desenvolvimento de sites responsivos e soluções digitais para pequenas empresas.", category:"Desenvolvimento Web", targetAudience:"Empreendedores locais", objective:"Solicitação de orçamento", primaryKeywords:["desenvolvimento de sites","soluções digitais para empresas"], secondaryKeywords:["seo","landing page"], status:"ativo", createdAt:ago(20), updatedAt:ago(2), isDemo:true },
+      { id:"dp3", teamName:"Equipe InfoFix [DEMO]", projectName:"InfoHelp Serviços", url:"https://exemplo-demo.github.io/infohelp/", description:"Serviços de informática, manutenção de computadores e suporte técnico.", category:"Serviços de TI", targetAudience:"Famílias e microempresas", objective:"Agendar suporte", primaryKeywords:["serviços de informática","manutenção de computadores"], secondaryKeywords:["redes","ti"], status:"ativo", createdAt:ago(18), updatedAt:ago(2), isDemo:true },
+      { id:"dp4", teamName:"Equipe NovaIdeia [DEMO]", projectName:"ConectaTech (Proposta)", url:"", description:"Proposta inicial de oficinas de inclusão digital.", category:"Educação Tecnológica", targetAudience:"Comunidade", objective:"Protótipo em planejamento", primaryKeywords:["educação tecnológica"], secondaryKeywords:["inclusão digital"], status:"em_desenvolvimento", createdAt:ago(5), updatedAt:ago(1), isDemo:true }
+    ];
+    const r1 = { id:"dr1", label:"Aula 02 — Diagnóstico [DEMO]", date:ago(14), referenceQuery:"cursos de programação para jovens", algorithmVersion:VER, status:"completed", summary:{total:3,success:3,failed:0,skipped:0}, isDemo:true };
+    const r2 = { id:"dr2", label:"Aula 04 — Otimização SEO [DEMO]", date:ago(2), referenceQuery:"cursos de programação para jovens", algorithmVersion:VER, status:"completed", summary:{total:4,success:3,failed:0,skipped:1}, isDemo:true };
+    const mk = (id, p, rId, ts, sc, extra) => {
+      const q = Number((sc.seo*.2+sc.con*.2+sc.ux*.15+sc.res*.15+sc.perf*.1+sc.vis*.1+sc.cta*.1).toFixed(1));
+      return {
+        id, projectId:p.id, roundId:rId, timestamp:ts, algorithmVersion:VER, status:"completed", urlChecked:p.url, pageAvailable:true, httpStatus:200,
+        dataCoverage:100, sufficientCoverage:true, qualityScore:q, qualityScoreRaw:q, isDemo:true, positives:extra.pos||[], issues:extra.iss||[], recommendations:extra.rec||[],
+        seoOnPage:{ source:"demo", status:"available", timestamp:ts, title:extra.title, titleLength:extra.title.length, metaDescription:p.description, metaDescriptionLength:p.description.length, h1Count:1, h1Texts:[extra.title], h2Count:3, h3Count:2, headingHierarchyValid:true, totalImages:5, imagesWithoutAlt:extra.noAlt||0, internalLinks:6, externalLinks:2, canonical:p.url, hasViewport:true, htmlLang:"pt-BR", wordCount:extra.wc||380, ctaCount:2, ctaTexts:["Inscreva-se","Saiba mais"], bodySnippet:p.description, extractedKeywords:p.primaryKeywords.concat(p.secondaryKeywords) },
+        pagespeed:{
+          mobile:{ source:"demo", status:"available", timestamp:ts, scores:{performance:sc.perf,accessibility:sc.ux,bestPractices:90,seo:sc.seo}, labMetrics:{lcpMs:extra.lcp||2100,fcpMs:1100,cls:0.03,tbtMs:80,speedIndexMs:2000,inpMs:null}, fieldData:{status:"unavailable"} },
+          desktop:{ source:"demo", status:"available", timestamp:ts, scores:{performance:Math.min(99,sc.perf+8),accessibility:sc.ux,bestPractices:92,seo:sc.seo}, labMetrics:{lcpMs:1100,fcpMs:600,cls:0.01,tbtMs:20,speedIndexMs:1100,inpMs:null}, fieldData:{status:"unavailable"} }
+        },
+        manualReview:{ source:"demo", status:"available", updatedAt:ts, uxUsability:sc.ux, visualIdentity:sc.vis, contentClarity:sc.con, ctaEffectiveness:sc.cta, notes:"Exemplo demonstrativo." },
+        criteriaScores:{
+          seoOnPage:{score:sc.seo,source:"demo",breakdown:["Exemplo demo"]}, contentKeywords:{score:sc.con,source:"demo",breakdown:["Exemplo demo"]},
+          uxUsability:{score:sc.ux,source:"demo",breakdown:["Exemplo demo"]}, responsiveness:{score:sc.res,source:"demo",breakdown:["Exemplo demo"]},
+          technicalPerformance:{score:sc.perf,source:"demo",breakdown:["Exemplo demo"]}, visualIdentity:{score:sc.vis,source:"demo",breakdown:["Exemplo demo"]},
+          conversionCta:{score:sc.cta,source:"demo",breakdown:["Exemplo demo"]}
+        }
+      };
+    };
+    const evals = [
+      mk("de1",ps[0],r1.id,ago(14),{seo:70,con:72,ux:74,res:78,perf:68,vis:74,cta:70},{title:"CodeStart - Início",noAlt:2,wc:240,lcp:3100,iss:["2 imagens sem ALT"],rec:["Incluir palavra-chave no Title"]}),
+      mk("de2",ps[1],r1.id,ago(14),{seo:80,con:78,ux:82,res:84,perf:76,vis:84,cta:78},{title:"WebStudio Escolar — Desenvolvimento de Sites",pos:["Boa estrutura semântica"]}),
+      mk("de3",ps[2],r1.id,ago(14),{seo:64,con:66,ux:68,res:70,perf:60,vis:65,cta:64},{title:"InfoHelp",noAlt:3,wc:190,lcp:3500,iss:["Title curto"],rec:["Expandir descrição dos serviços"]}),
+      mk("de4",ps[0],r2.id,ago(2),{seo:92,con:90,ux:88,res:90,perf:86,vis:86,cta:88},{title:"CodeStart Jovem — Cursos de Programação para Jovens",wc:520,lcp:1900,pos:["Todas imagens com ALT","Ótima evolução On-Page"]}),
+      mk("de5",ps[1],r2.id,ago(2),{seo:86,con:84,ux:86,res:88,perf:84,vis:88,cta:85},{title:"WebStudio Escolar — Desenvolvimento de Sites",wc:460,pos:["CTAs visíveis"]}),
+      mk("de6",ps[2],r2.id,ago(2),{seo:75,con:76,ux:74,res:78,perf:72,vis:72,cta:75},{title:"InfoHelp — Serviços de Informática",noAlt:1,wc:340,lcp:2600,pos:["Melhorou Title e CTAs"],iss:["1 imagem sem ALT"]})
+    ];
+    const rh = [
+      { id:"drh1", roundId:r1.id, timestamp:r1.date, entries:[{projectId:"dp2",position:1,qualityScore:80.1},{projectId:"dp1",position:2,qualityScore:72.4},{projectId:"dp3",position:3,qualityScore:65.6}], isDemo:true },
+      { id:"drh2", roundId:r2.id, timestamp:r2.date, entries:[{projectId:"dp1",position:1,qualityScore:89.2},{projectId:"dp2",position:2,qualityScore:85.8},{projectId:"dp3",position:3,qualityScore:74.9}], isDemo:true }
+    ];
+    const s = emptyState(); s.projects=ps; s.rounds=[r1,r2]; s.evaluations=evals; s.rankingHistory=rh; return s;
+  }
+
+  function getState() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) { const s = demoSeed(); saveState(s); return s; }
+      const p = JSON.parse(raw);
+      if (!p || p.system !== "BuscaWeb" || !Array.isArray(p.projects)) return emptyState();
+      p.rounds = p.rounds || []; p.rankingHistory = p.rankingHistory || []; p.searches = p.searches || [];
+      p.settings = { ...DEF_SET, ...(p.settings||{}), qualityWeights:{...DEF_SET.qualityWeights,...((p.settings||{}).qualityWeights||{})}, relevanceWeights:{...DEF_SET.relevanceWeights,...((p.settings||{}).relevanceWeights||{})} };
+      return p;
+    } catch { return emptyState(); }
+  }
+  function saveState(st) { st.metadata = { ...(st.metadata||{}), lastModifiedAt:new Date().toISOString() }; localStorage.setItem(KEY, JSON.stringify(st)); }
+
+  /* ==================== MOTOR DE PONTUAÇÃO & RELEVÂNCIA ==================== */
+  function scoreEvaluation(raw, man, proj, set) {
+    const seo = raw.seoOnPage, mob = raw.pagespeed.mobile, dsk = raw.pagespeed.desktop;
+    const hasH = seo && seo.status === "available", psiSeo = mob && mob.status === "available" ? mob.scores.seo : null;
+    const pos = [], iss = [], rec = [];
+
+    // 1. SEO On-page
+    let cSeo = { score:null, source:"unavailable", breakdown:[] };
+    if (hasH) {
+      let pts = 0;
+      if (seo.title) { const ok = seo.titleLength>=30 && seo.titleLength<=65; pts += ok?20:11; cSeo.breakdown.push(`Title (${seo.titleLength}c): +${ok?20:11}`); if(!ok) rec.push("Ajustar Title para 30-65 caracteres."); } else { iss.push("Title ausente."); rec.push("Adicionar tag <title>."); }
+      if (seo.metaDescription) { const ok = seo.metaDescriptionLength>=70 && seo.metaDescriptionLength<=165; pts += ok?15:8; cSeo.breakdown.push(`Meta desc (${seo.metaDescriptionLength}c): +${ok?15:8}`); } else { iss.push("Meta description ausente."); rec.push("Incluir <meta name=\"description\">."); }
+      pts += seo.h1Count===1 ? 12 : seo.h1Count>1 ? 5 : 0;
+      if (seo.h1Count!==1) { iss.push(`H1 count = ${seo.h1Count}.`); rec.push("Manter exatamente 1 H1."); }
+      pts += seo.headingHierarchyValid ? 8 : 2;
+      if (!seo.headingHierarchyValid) iss.push("Saltos na hierarquia H1-H3.");
+      const altPts = seo.totalImages===0 ? 10 : Math.round((1 - seo.imagesWithoutAlt/seo.totalImages)*15);
+      pts += altPts; if (seo.imagesWithoutAlt>0) { iss.push(`${seo.imagesWithoutAlt} img sem ALT.`); rec.push("Preencher ALT nas imagens."); }
+      const sem = Object.values(seo.semanticTags||{}).filter(Boolean).length;
+      pts += Math.min(10, sem*2) + (seo.htmlLang?5:0) + (seo.canonical?5:0);
+      pts = psiSeo!=null ? Math.round(pts + (psiSeo/100)*10) : Math.round((pts/90)*100);
+      cSeo = { score:clamp(pts,0,100), source:psiSeo!=null?"hybrid":"worker-html", breakdown:cSeo.breakdown };
+    } else if (psiSeo!=null) {
+      cSeo = { score:Math.round(psiSeo), source:"psi-lab", breakdown:[`PSI SEO: ${psiSeo}`] };
+    }
+
+    // 2. Conteúdo & Palavras-chave
+    const hasM = man && man.status === "available";
+    let cCon = { score:null, source:"unavailable", breakdown:[] };
+    let autoCon = null;
+    if (hasH) {
+      let pts = seo.wordCount>=300?40:seo.wordCount>=150?25:10;
+      const bodyN = norm([seo.title,seo.metaDescription,(seo.h1Texts||[]).join(" "),seo.bodySnippet].join(" "));
+      const kws = [...(proj.primaryKeywords||[]),...(proj.secondaryKeywords||[])].map(norm).filter(Boolean);
+      const hits = kws.filter(k => bodyN.includes(k)).length;
+      pts += kws.length ? Math.round((hits/kws.length)*40) : 20;
+      pts += (seo.h2Count>=2 ? 20 : 8);
+      autoCon = clamp(pts,0,100);
+      cCon.breakdown.push(`Palavras=${seo.wordCount}, KWs=${hits}/${kws.length}`);
+    }
+    if (autoCon!=null && hasM && man.contentClarity!=null) cCon = { score:Math.round(autoCon*.6+man.contentClarity*.4), source:"hybrid", breakdown:[...cCon.breakdown,`Manual=${man.contentClarity}`] };
+    else if (autoCon!=null) cCon = { score:autoCon, source:"worker-html", breakdown:cCon.breakdown };
+    else if (hasM && man.contentClarity!=null) cCon = { score:clamp(Number(man.contentClarity),0,100), source:"manual", breakdown:[`Manual=${man.contentClarity}`] };
+
+    // 3. UX
+    const uxVals = [mob&&mob.status==="available"?mob.scores.accessibility:null, mob&&mob.status==="available"?mob.scores.bestPractices:null, dsk&&dsk.status==="available"?dsk.scores.accessibility:null].filter(v=>v!=null);
+    const psiUx = uxVals.length ? uxVals.reduce((a,b)=>a+b,0)/uxVals.length : null;
+    let cUx = { score:null, source:"unavailable", breakdown:[] };
+    if (psiUx!=null && hasM && man.uxUsability!=null) cUx = { score:Math.round(psiUx*.6+man.uxUsability*.4), source:"hybrid", breakdown:[`PSI A11y/BP=${psiUx.toFixed(1)}`, `Manual=${man.uxUsability}`] };
+    else if (psiUx!=null) cUx = { score:Math.round(psiUx), source:"psi-lab", breakdown:[`PSI A11y/BP=${psiUx.toFixed(1)}`] };
+    else if (hasM && man.uxUsability!=null) cUx = { score:clamp(Number(man.uxUsability),0,100), source:"manual", breakdown:[`Manual=${man.uxUsability}`] };
+
+    // 4. Responsividade
+    let cRes = { score:null, source:"unavailable", breakdown:[] };
+    const rParts = [];
+    if (hasH) { rParts.push(seo.hasViewport?95:25); cRes.breakdown.push(`Viewport: ${seo.hasViewport?"OK":"Ausente"}`); }
+    if (mob && mob.status==="available") {
+      if (mob.labMetrics.cls!=null) { rParts.push(mob.labMetrics.cls<=0.1?95:mob.labMetrics.cls<=0.25?70:40); cRes.breakdown.push(`CLS=${mob.labMetrics.cls}`); }
+      if (mob.scores.seo!=null) rParts.push(mob.scores.seo);
+    }
+    if (rParts.length) cRes = { score:Math.round(rParts.reduce((a,b)=>a+b,0)/rParts.length), source:hasH&&mob.status==="available"?"hybrid":hasH?"worker-html":"psi-lab", breakdown:cRes.breakdown };
+
+    // 5. Performance
+    const mP = mob&&mob.status==="available"?mob.scores.performance:null, dP = dsk&&dsk.status==="available"?dsk.scores.performance:null;
+    let cPerf = { score:null, source:"unavailable", breakdown:[] };
+    if (mP!=null && dP!=null) cPerf = { score:Math.round(mP*.6+dP*.4), source:"psi-lab", breakdown:[`Mob=${mP}, Desk=${dP}`] };
+    else if (mP!=null || dP!=null) cPerf = { score:Math.round(mP!=null?mP:dP), source:"psi-lab", breakdown:[`Perf=${mP!=null?mP:dP}`] };
+
+    // 6. Visual (manual)
+    const cVis = hasM && man.visualIdentity!=null ? { score:clamp(Number(man.visualIdentity),0,100), source:"manual", breakdown:[`Manual=${man.visualIdentity}`] } : { score:null, source:"unavailable", breakdown:["Aguardando nota manual"] };
+
+    // 7. CTA
+    let cCta = { score:null, source:"unavailable", breakdown:[] };
+    const autoCta = hasH ? (seo.ctaCount>=2?88:seo.ctaCount===1?68:35) : null;
+    if (autoCta!=null && hasM && man.ctaEffectiveness!=null) cCta = { score:Math.round(autoCta*.5+man.ctaEffectiveness*.5), source:"hybrid", breakdown:[`CTAs=${seo.ctaCount}`,`Manual=${man.ctaEffectiveness}`] };
+    else if (autoCta!=null) cCta = { score:autoCta, source:"worker-html", breakdown:[`CTAs=${seo.ctaCount}`] };
+    else if (hasM && man.ctaEffectiveness!=null) cCta = { score:clamp(Number(man.ctaEffectiveness),0,100), source:"manual", breakdown:[`Manual=${man.ctaEffectiveness}`] };
+
+    const criteriaScores = { seoOnPage:cSeo, contentKeywords:cCon, uxUsability:cUx, responsiveness:cRes, technicalPerformance:cPerf, visualIdentity:cVis, conversionCta:cCta };
+    const qw = set.qualityWeights || DEF_SET.qualityWeights;
+    let wSum = 0, sSum = 0;
+    Object.keys(criteriaScores).forEach(k => {
+      const w = Number(qw[k]||0), s = criteriaScores[k].score;
+      if (s!=null && w>0) { wSum += w; sSum += s*w; }
+    });
+    const dataCoverage = Math.round(wSum);
+    const sufficientCoverage = dataCoverage >= (set.minCoverageForOfficial || 50);
+    const qualityScoreRaw = wSum > 0 ? Number((sSum/wSum).toFixed(1)) : null;
+    const qualityScore = sufficientCoverage ? qualityScoreRaw : null;
+
+    return { criteriaScores, dataCoverage, sufficientCoverage, qualityScoreRaw, qualityScore, positives:pos, issues:iss, recommendations:rec };
+  }
+
+  function computeRelevance(proj, ev, query, set) {
+    const tks = tok(query), nq = norm(query);
+    if (!tks.length) return { relevanceScore:null, K:null, C:null, S:null, U:null, matched:[] };
+    const pKw = (proj.primaryKeywords||[]).map(norm).filter(Boolean);
+    const sKw = [...(proj.secondaryKeywords||[]), ...((ev&&ev.seoOnPage&&ev.seoOnPage.extractedKeywords)||[])].map(norm).filter(Boolean);
+    let kPts = 0; const matched = new Set();
+    pKw.forEach(k => {
+      if (nq.includes(k)||k.includes(nq)) { kPts += 45; matched.add(k); }
+      else { const kt = tok(k), h = tks.filter(t=>kt.includes(t)).length; if (h) { kPts += (h/tks.length)*35; matched.add(k); } }
+    });
+    sKw.forEach(k => {
+      if (nq.includes(k)) { kPts += 20; matched.add(k); }
+      else { const kt = tok(k), h = tks.filter(t=>kt.includes(t)).length; if (h) { kPts += (h/tks.length)*15; matched.add(k); } }
+    });
+    const K = clamp(Math.round(kPts), 0, 100);
+    const tTxt = norm([proj.projectName, ev&&ev.seoOnPage&&ev.seoOnPage.title, ev&&ev.seoOnPage&&(ev.seoOnPage.h1Texts||[]).join(" ")].join(" "));
+    const bTxt = norm([proj.description, proj.category, proj.targetAudience, ev&&ev.seoOnPage&&ev.seoOnPage.bodySnippet].join(" "));
+    const C = clamp(Math.round((tks.filter(t=>tTxt.includes(t)).length/tks.length)*40 + (tks.filter(t=>bTxt.includes(t)).length/tks.length)*35 + (tTxt.includes(nq)?25:0) + (bTxt.includes(nq)?15:0)), 0, 100);
+    const S = ev&&ev.criteriaScores&&ev.criteriaScores.seoOnPage&&ev.criteriaScores.seoOnPage.score!=null ? ev.criteriaScores.seoOnPage.score : null;
+    const U = ev&&ev.criteriaScores&&ev.criteriaScores.uxUsability&&ev.criteriaScores.uxUsability.score!=null ? ev.criteriaScores.uxUsability.score : null;
+
+    const rw = (set&&set.relevanceWeights) || DEF_SET.relevanceWeights;
+    const parts = [{v:K,w:rw.keywords},{v:C,w:rw.content},{v:S,w:rw.seo},{v:U,w:rw.ux}];
+    let aw=0, sum=0; parts.forEach(p => { if(p.v!=null){ aw+=p.w; sum+=p.v*p.w; } });
+    return { relevanceScore: aw>0 ? Number((sum/aw).toFixed(1)) : 0, K, C, S, U, matched:Array.from(matched) };
+  }
+
+  function latestEval(evals, pid) {
+    return evals.filter(e => e.projectId===pid && e.status!=="skipped_dev").sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp))[0] || null;
+  }
+
+  /* ==================== PRIORIDADE: MOTOR DOS 3 RANKINGS ==================== */
+  function evalMapForRound(st, roundId) {
+    const m = new Map();
+    if (roundId && roundId !== "latest") {
+      st.evaluations.filter(e => e.roundId===roundId && e.status!=="skipped_dev").forEach(e => m.set(e.projectId, e));
+      return m;
+    }
+    [...st.evaluations].filter(e => e.status!=="skipped_dev").sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp)).forEach(e => { if(!m.has(e.projectId)) m.set(e.projectId, e); });
+    return m;
+  }
+
+  function buildRankings(roundId, query) {
+    const st = getState();
+    const active = st.projects.filter(p => p.status === "ativo");
+    const eMap = evalMapForRound(st, roundId);
+
+    // 1. Melhor Posicionamento
+    const official = [], provisional = [];
+    active.forEach(p => {
+      const ev = eMap.get(p.id) || null;
+      const rel = query ? computeRelevance(p, ev, query, st.settings) : null;
+      if (!ev || !ev.sufficientCoverage || ev.qualityScore == null) {
+        provisional.push({ project:p, ev, raw:ev?ev.qualityScoreRaw:null, cov:ev?ev.dataCoverage:0, reason: !ev ? "Sem auditoria" : `Cobertura ${ev.dataCoverage}% < ${st.settings.minCoverageForOfficial}%` });
+        return;
+      }
+      const combined = rel ? Number((rel.relevanceScore*.6 + ev.qualityScore*.4).toFixed(1)) : ev.qualityScore;
+      official.push({ project:p, ev, quality:ev.qualityScore, cov:ev.dataCoverage, rel:rel?rel.relevanceScore:null, combined });
+    });
+    official.sort((a,b) => b.combined - a.combined || b.quality - a.quality);
+    official.forEach((x,i) => x.pos = i+1);
+
+    // 2. Maior Evolução (pontuação vs posição claramente separados)
+    const byProj = new Map();
+    st.evaluations.filter(e => e.status!=="skipped_dev" && e.qualityScoreRaw!=null).sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp))
+      .forEach(e => { if(!byProj.has(e.projectId)) byProj.set(e.projectId, []); byProj.get(e.projectId).push(e); });
+    const hist = [...(st.rankingHistory||[])].sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp));
+    const snapPrev = hist.length>=2 ? hist[hist.length-2] : null;
+    const snapCurr = hist.length>=1 ? hist[hist.length-1] : null;
+    const evolution = [];
+    active.forEach(p => {
+      const lst = byProj.get(p.id) || [];
+      if (lst.length < 2) return;
+      const prev = lst[lst.length-2], curr = lst[lst.length-1];
+      const abs = Number((curr.qualityScoreRaw - prev.qualityScoreRaw).toFixed(1));
+      const pct = prev.qualityScoreRaw > 0 ? Number(((abs/prev.qualityScoreRaw)*100).toFixed(1)) : 0;
+      const pPos = snapPrev && snapPrev.entries.find(x=>x.projectId===p.id);
+      const cPos = snapCurr && snapCurr.entries.find(x=>x.projectId===p.id);
+      evolution.push({ project:p, prevScore:prev.qualityScoreRaw, currScore:curr.qualityScoreRaw, abs, pct, prevPos:pPos?pPos.position:null, currPos:cPos?cPos.position:null });
+    });
+    evolution.sort((a,b) => b.abs - a.abs);
+    evolution.forEach((x,i) => x.evoPos = i+1);
+
+    // 3. Destaques por Categoria
+    const bestOf = (label, fn) => {
+      let best = null;
+      active.forEach(p => {
+        const ev = eMap.get(p.id); if (!ev) return;
+        const v = fn(p, ev); if (v == null || Number.isNaN(Number(v))) return;
+        if (!best || v > best.score) best = { project:p, ev, score:Number(Number(v).toFixed(1)) };
+      });
+      return { label, best };
+    };
+    const refQ = query || (st.searches[st.searches.length-1] && st.searches[st.searches.length-1].query) || "";
+    const highlights = [
+      bestOf("Melhor SEO", (p,e) => e.criteriaScores.seoOnPage && e.criteriaScores.seoOnPage.score),
+      bestOf("Melhor Performance", (p,e) => e.criteriaScores.technicalPerformance && e.criteriaScores.technicalPerformance.score),
+      bestOf("Melhor Acessibilidade", (p,e) => {
+        const vals = [e.pagespeed&&e.pagespeed.mobile&&e.pagespeed.mobile.scores.accessibility, e.pagespeed&&e.pagespeed.desktop&&e.pagespeed.desktop.scores.accessibility].filter(v=>v!=null);
+        return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+      }),
+      bestOf("Melhor Conteúdo", (p,e) => e.criteriaScores.contentKeywords && e.criteriaScores.contentKeywords.score),
+      bestOf("Melhor Relevância", (p,e) => refQ ? computeRelevance(p, e, refQ, st.settings).relevanceScore : null),
+      bestOf("Melhor UX", (p,e) => e.criteriaScores.uxUsability && e.criteriaScores.uxUsability.score)
+    ];
+
+    return { official, provisional, evolution, highlights, refQ };
+  }
+
+  /* ==================== AUDITORIA (WORKER + PSI + FILA) ==================== */
+  let cancelAud = false, lastFailIds = [], lastRoundId = null;
+
+  function parseHtml(html, baseUrl) {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const title = (doc.querySelector("title")?.textContent || "").trim();
+    const metaDesc = (doc.querySelector('meta[name="description"]')?.getAttribute("content") || "").trim();
+    const vp = (doc.querySelector('meta[name="viewport"]')?.getAttribute("content") || "").trim();
+    const canon = (doc.querySelector('link[rel="canonical"]')?.getAttribute("href") || "").trim();
+    const lang = doc.documentElement?.getAttribute("lang") || "";
+    const h1s = Array.from(doc.querySelectorAll("h1")).map(h=>h.textContent.trim()).filter(Boolean);
+    const h2s = doc.querySelectorAll("h2").length, h3s = doc.querySelectorAll("h3").length;
+    let prev=0, hOk=true;
+    doc.querySelectorAll("h1,h2,h3,h4,h5,h6").forEach(h => { const lv=+h.tagName[1]; if(prev>0 && lv-prev>1) hOk=false; prev=lv; });
+    const imgs = Array.from(doc.querySelectorAll("img"));
+    const noAlt = imgs.filter(i => !(i.getAttribute("alt")||"").trim()).length;
+    const ctas = Array.from(doc.querySelectorAll("button,a.btn,input[type='submit']")).length;
+    const clone = doc.body ? doc.body.cloneNode(true) : null;
+    if (clone) clone.querySelectorAll("script,style,noscript").forEach(n=>n.remove());
+    const txt = (clone?.textContent || "").replace(/\s+/g," ").trim();
+    return {
+      source:"worker-html", status:"available", timestamp:new Date().toISOString(),
+      title, titleLength:title.length, metaDescription:metaDesc, metaDescriptionLength:metaDesc.length,
+      h1Count:h1s.length, h1Texts:h1s, h2Count:h2s, h3Count:h3s, headingHierarchyValid:hOk,
+      totalImages:imgs.length, imagesWithoutAlt:noAlt, canonical:canon, hasViewport:!!vp, htmlLang:lang,
+      semanticTags:{header:!!doc.querySelector("header"),nav:!!doc.querySelector("nav"),main:!!doc.querySelector("main"),footer:!!doc.querySelector("footer")},
+      wordCount:txt?txt.split(" ").filter(Boolean).length:0, ctaCount:ctas, bodySnippet:txt.slice(0,400),
+      extractedKeywords:tok(txt).slice(0,12)
+    };
+  }
+
+  async function fetchPsi(url, strategy, workerUrl) {
+    const ep = workerUrl
+      ? `${workerUrl.replace(/\/+$/,"")}/pagespeed?url=${encodeURIComponent(url)}&strategy=${strategy}`
+      : `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&strategy=${strategy}&category=PERFORMANCE&category=ACCESSIBILITY&category=BEST_PRACTICES&category=SEO`;
+    const r = await fetch(ep);
+    if (!r.ok) throw new Error(`PSI ${strategy} HTTP ${r.status}`);
+    const j = await r.json(), lr = j.lighthouseResult;
+    if (!lr || !lr.categories) throw new Error("PSI sem dados Lighthouse");
+    const c = lr.categories, a = lr.audits || {}, s100 = (x)=>x&&typeof x.score==="number"?Math.round(x.score*100):null;
+    const nv = (id)=>a[id]&&typeof a[id].numericValue==="number"?Number(a[id].numericValue.toFixed(2)):null;
+    const le = j.loadingExperience;
+    return {
+      source:"psi-lab", status:"available", timestamp:new Date().toISOString(),
+      scores:{performance:s100(c.performance),accessibility:s100(c.accessibility),bestPractices:s100(c["best-practices"]),seo:s100(c.seo)},
+      labMetrics:{lcpMs:nv("largest-contentful-paint"),fcpMs:nv("first-contentful-paint"),cls:nv("cumulative-layout-shift"),tbtMs:nv("total-blocking-time"),speedIndexMs:nv("speed-index"),inpMs:nv("interaction-to-next-paint")},
+      fieldData: le && le.metrics ? {status:"available", lcpMs:le.metrics.LARGEST_CONTENTFUL_PAINT_MS?.percentile??null, inpMs:le.metrics.INTERACTION_TO_NEXT_PAINT?.percentile??null} : {status:"unavailable"}
+    };
+  }
+
+  async function auditOne(proj, opts) {
+    const st = getState(), now = new Date().toISOString();
+    const unavailSeo = (r)=>({source:"unavailable",status:"unavailable",reason:r});
+    const unavailPsi = (r)=>({source:"unavailable",status:"unavailable",reason:r,scores:{},labMetrics:{},fieldData:{status:"unavailable"}});
+    const prevMan = st.evaluations.filter(e=>e.projectId===proj.id&&e.manualReview&&e.manualReview.status==="available").sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp))[0]?.manualReview || {source:"unavailable",status:"unavailable"};
+
+    if (proj.status === "em_desenvolvimento") {
+      return { id:uid("ev"), projectId:proj.id, roundId:opts.roundId||null, timestamp:now, algorithmVersion:VER, status:"skipped_dev", dataCoverage:0, sufficientCoverage:false, qualityScore:null, qualityScoreRaw:null, seoOnPage:unavailSeo("Proposta"), pagespeed:{mobile:unavailPsi("Proposta"),desktop:unavailPsi("Proposta")}, manualReview:prevMan, criteriaScores:{}, positives:[], issues:[], recommendations:["Publicar protótipo no GitHub Pages."], isDemo:false };
+    }
+    const chk = validateUrl(proj.url);
+    if (!chk.ok) {
+      return { id:uid("ev"), projectId:proj.id, roundId:opts.roundId||null, timestamp:now, algorithmVersion:VER, status:"failed", errorMessage:chk.msg, dataCoverage:0, sufficientCoverage:false, qualityScore:null, qualityScoreRaw:null, seoOnPage:unavailSeo(chk.msg), pagespeed:{mobile:unavailPsi(chk.msg),desktop:unavailPsi(chk.msg)}, manualReview:prevMan, criteriaScores:{}, positives:[], issues:[chk.msg], recommendations:["Corrigir URL."], isDemo:false };
+    }
+    const wUrl = st.settings.workerUrl || "";
+    let seo = unavailSeo("Worker não configurado"), mob = unavailPsi("Não consultado"), dsk = unavailPsi("Não consultado"), errs = [], okAny = false;
+    if (opts.html && wUrl) {
+      try {
+        const hr = await fetch(`${wUrl.replace(/\/+$/,"")}/fetch-seo?url=${encodeURIComponent(chk.url)}`);
+        const hj = await hr.json();
+        if (hr.ok && hj.ok && hj.html) { seo = parseHtml(hj.html, hj.finalUrl||chk.url); okAny = true; }
+        else errs.push(hj.error || `Worker HTTP ${hr.status}`);
+      } catch (e) { errs.push("HTML: "+e.message); }
+    }
+    if (opts.psi) {
+      try { mob = await fetchPsi(chk.url, "mobile", wUrl); okAny = true; } catch (e) { errs.push(e.message); }
+      await new Promise(r=>setTimeout(r,300));
+      try { dsk = await fetchPsi(chk.url, "desktop", wUrl); okAny = true; } catch (e) { errs.push(e.message); }
+    }
+    const calc = scoreEvaluation({seoOnPage:seo, pagespeed:{mobile:mob,desktop:dsk}}, prevMan, proj, st.settings);
+    const status = (!okAny && calc.dataCoverage===0) ? "failed" : (errs.length ? "partial" : "completed");
+    return { id:uid("ev"), projectId:proj.id, roundId:opts.roundId||null, timestamp:now, algorithmVersion:VER, status, urlChecked:chk.url, pageAvailable:okAny, dataCoverage:calc.dataCoverage, sufficientCoverage:calc.sufficientCoverage, seoOnPage:seo, pagespeed:{mobile:mob,desktop:dsk}, manualReview:prevMan, criteriaScores:calc.criteriaScores, qualityScore:calc.qualityScore, qualityScoreRaw:calc.qualityScoreRaw, positives:calc.positives, issues:calc.issues, recommendations:calc.recommendations, errorMessage:errs.join(" | ")||null, isDemo:false };
+  }
+
+  /* ==================== RENDERIZAÇÕES ==================== */
+  function syncBanner() {
+    const st = getState();
+    $("demo-banner").classList.toggle("hide", !st.projects.some(p=>p.isDemo) && !st.rounds.some(r=>r.isDemo));
+  }
+
+  function showView(v) {
+    ["search","rankings","admin"].forEach(k => $("v-"+k).classList.toggle("hide", k!==v));
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("on", b.dataset.view===v));
+    if (v==="rankings") renderRankings();
+    if (v==="admin") renderAdmin();
+  }
+
+  function doSearch(q) {
+    q = (q||"").trim(); $("q-in").value = q;
+    const hero = $("hero"), out = $("q-out");
+    if (!q) { hero.classList.remove("cmp"); out.classList.add("hide"); $("btn-q-clear").classList.add("hide"); return; }
+    hero.classList.add("cmp"); out.classList.remove("hide"); $("btn-q-clear").classList.remove("hide");
+    const st = getState(), tks = tok(q), incDev = $("chk-dev").checked;
+    const res = st.projects.filter(p => p.status==="ativo" || (incDev && p.status==="em_desenvolvimento")).map(p => {
+      const ev = latestEval(st.evaluations, p.id), rel = computeRelevance(p, ev, q, st.settings);
+      if ((rel.K||0)===0 && (rel.C||0)===0) return null;
+      const qual = p.status!=="em_desenvolvimento" && ev && ev.sufficientCoverage ? ev.qualityScore : null;
+      const ord = qual!=null ? rel.relevanceScore*.6 + qual*.4 : rel.relevanceScore*.7;
+      return { p, ev, rel, qual, ord };
+    }).filter(Boolean).sort((a,b)=>b.ord-a.ord);
+
+    st.searches.push({ id:uid("s"), query:q, timestamp:new Date().toISOString(), resultsCount:res.length });
+    if (st.searches.length>150) st.searches = st.searches.slice(-150);
+    saveState(st);
+
+    $("q-meta").innerHTML = `<strong>${res.length}</strong> resultado(s) simulado(s) para <em>"${esc(q)}"</em>.`;
+    $("q-list").innerHTML = !res.length ? '<div class="card">Nenhum projeto correspondente encontrado.</div>' : res.map((r,i) => {
+      const sn = esc((r.ev&&r.ev.seoOnPage&&r.ev.seoOnPage.bodySnippet) || r.p.description).slice(0,220);
+      const hi = tks.length ? sn.replace(new RegExp(`(${tks.map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")})`,"gi"), "<mark>$1</mark>") : sn;
+      return `<div class="card">
+        <div class="row between">
+          <div class="row"><span class="badge bb">#${i+1}</span> <span class="sm" style="color:var(--g)">${esc(r.p.url||"Sem URL")}</span> ${r.p.isDemo?'<span class="badge bwb">DEMO</span>':""} ${r.p.status==="em_desenvolvimento"?'<span class="badge bpb">Em desenvolvimento</span>':""}</div>
+          <span class="sm muted">Auditoria: ${r.ev?esc(fmtDt(r.ev.timestamp)):"Pendente"}</span>
+        </div>
+        <h3 style="margin:4px 0">${r.p.url?`<a href="${esc(r.p.url)}" target="_blank" rel="noopener">${esc((r.ev&&r.ev.seoOnPage&&r.ev.seoOnPage.title)||r.p.projectName)}</a>`:esc(r.p.projectName)}</h3>
+        <div class="sm muted">${esc(r.p.projectName)} — ${esc(r.p.teamName)}</div>
+        <p style="margin:6px 0">${hi}</p>
+        <div class="row between">
+          <div class="row">
+            <span class="badge bgb">Relevância: ${r.rel.relevanceScore}</span>
+            <span class="badge bb">Qualidade: ${r.qual!=null?r.qual:"Indisp."}</span>
+            ${r.rel.matched.map(k=>`<span class="badge">${esc(k)}</span>`).join("")}
+          </div>
+          <div class="row">
+            <button class="btn sm btn-rep" data-pid="${esc(r.p.id)}" data-eid="${esc(r.ev?r.ev.id:"")}" data-q="${esc(q)}">Relatório</button>
+            ${r.p.url?`<a class="btn bp sm" href="${esc(r.p.url)}" target="_blank" rel="noopener">Abrir Site</a>`:""}
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  function renderRankings() {
+    const st = getState();
+    const rounds = [...st.rounds].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const sel = $("rk-round"), prev = sel.value;
+    sel.innerHTML = '<option value="latest">Mais recente por projeto</option>' + rounds.map(r=>`<option value="${esc(r.id)}">${esc(r.label)}</option>`).join("");
+    if (prev && Array.from(sel.options).some(o=>o.value===prev)) sel.value = prev;
+
+    const rId = sel.value || "latest", q = $("rk-query").value.trim();
+    const rk = buildRankings(rId, q);
+
+    $("rk-pos").innerHTML = `<div class="card">
+      <h3>Ranking 1 — Melhor Posicionamento ${q?`("${esc(q)}")`:"(Geral por Qualidade)"}</h3>
+      ${rk.official.length ? `<div style="overflow-x:auto"><table><thead><tr><th>Pos.</th><th>Projeto</th><th>Equipe</th><th>Qualidade</th>${q?"<th>Relevância</th><th>Combinado</th>":""}<th>Cobertura</th><th>Ação</th></tr></thead><tbody>
+        ${rk.official.map(x=>`<tr><td><strong>#${x.pos}</strong></td><td><strong>${esc(x.project.projectName)}</strong> ${x.project.isDemo?'<span class="badge bwb">DEMO</span>':""}</td><td>${esc(x.project.teamName)}</td><td><span class="badge bb">${x.quality}</span></td>${q?`<td><span class="badge bgb">${x.rel}</span></td><td><strong>${x.combined}</strong></td>`:""}<td>${x.cov}%</td><td><button class="btn sm btn-rep" data-pid="${esc(x.project.id)}" data-eid="${esc(x.ev.id)}" data-q="${esc(q)}">Relatório</button></td></tr>`).join("")}
+      </tbody></table></div>` : '<p class="muted">Nenhum projeto com cobertura suficiente.</p>'}
+      ${rk.provisional.length ? `<p class="sm muted" style="margin-top:8px"><strong>Fora do ranking oficial:</strong> ${rk.provisional.map(x=>`${esc(x.project.projectName)} (${esc(x.reason)})`).join(" | ")}</p>` : ""}
+    </div>`;
+
+    $("rk-evo").innerHTML = `<div class="card">
+      <h3>Ranking 2 — Maior Evolução (Pontuação vs Posição)</h3>
+      ${rk.evolution.length ? `<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>Projeto</th><th>Anterior</th><th>Atual</th><th>Evolução Pts</th><th>Evolução %</th><th>Posição Ant → Atual</th></tr></thead><tbody>
+        ${rk.evolution.map(x=>{ const sg = x.abs>0?"+":""; const cls = x.abs>0?"bgb":x.abs<0?"brb":"";
+          return `<tr><td><strong>#${x.evoPos}</strong></td><td><strong>${esc(x.project.projectName)}</strong><br><span class="sm muted">${esc(x.project.teamName)}</span></td><td>${x.prevScore}</td><td><strong>${x.currScore}</strong></td><td><span class="badge ${cls}">${sg}${x.abs}</span></td><td>${sg}${x.pct}%</td><td>${x.prevPos?"#"+x.prevPos:"N/D"} → <strong>${x.currPos?"#"+x.currPos:"N/D"}</strong></td></tr>`;
+        }).join("")}
+      </tbody></table></div>` : '<p class="muted">Necessárias ao menos 2 avaliações por projeto.</p>'}
+    </div>`;
+
+    $("rk-cat").innerHTML = `<div class="grid">${rk.highlights.map(h=>`<div class="card">
+      <div class="sm muted"><strong>${esc(h.label)}</strong></div>
+      ${h.best ? `<h3 style="margin:4px 0">${esc(h.best.project.projectName)}</h3><div class="sm muted">${esc(h.best.project.teamName)}</div><div style="font-size:22px;font-weight:800;color:var(--g);margin:4px 0">${h.best.score}/100</div><button class="btn sm btn-rep" data-pid="${esc(h.best.project.id)}" data-eid="${esc(h.best.ev.id)}">Ver Relatório</button>` : '<p class="muted sm">Sem dados suficientes.</p>'}
+    </div>`).join("")}</div>`;
+
+    const opts = rounds.map(r=>`<option value="${esc(r.id)}">${esc(r.label)}</option>`).join("");
+    $("rk-cmp").innerHTML = `<div class="card"><h3>Comparar Duas Rodadas</h3>
+      <div class="row" style="margin-bottom:8px">
+        <select id="cmp-a" class="in-sm">${opts}</select>
+        <select id="cmp-b" class="in-sm">${opts}</select>
+        <button class="btn bp" id="btn-cmp-go">Comparar</button>
+      </div>
+      <div id="cmp-out" class="sm muted">Selecione duas rodadas e clique em Comparar.</div>
+    </div>`;
+    if (rounds.length>=2) { $("cmp-a").value = rounds[1].id; $("cmp-b").value = rounds[0].id; renderCmp(); }
+  }
+
+  function renderCmp() {
+    const a = $("cmp-a")?.value, b = $("cmp-b")?.value, out = $("cmp-out");
+    if (!out) return;
+    if (!a || !b || a===b) { out.innerHTML = '<span class="badge bwb">Escolha duas rodadas distintas.</span>'; return; }
+    const st = getState();
+    const mA = new Map(st.evaluations.filter(e=>e.roundId===a).map(e=>[e.projectId,e]));
+    const mB = new Map(st.evaluations.filter(e=>e.roundId===b).map(e=>[e.projectId,e]));
+    const rows = st.projects.filter(p=>mA.has(p.id)||mB.has(p.id)).map(p => {
+      const sA = mA.get(p.id)?.qualityScoreRaw??null, sB = mB.get(p.id)?.qualityScoreRaw??null;
+      const d = sA!=null&&sB!=null ? Number((sB-sA).toFixed(1)) : null;
+      return `<tr><td><strong>${esc(p.projectName)}</strong></td><td>${sA??"N/D"}</td><td><strong>${sB??"N/D"}</strong></td><td>${d==null?"N/D":`<span class="badge ${d>0?"bgb":d<0?"brb":""}">${d>0?"+":""}${d} pts</span>`}</td></tr>`;
+    }).join("");
+    out.innerHTML = rows ? `<table><thead><tr><th>Projeto</th><th>Rodada Base</th><th>Rodada Atual</th><th>Variação</th></tr></thead><tbody>${rows}</tbody></table>` : "Sem dados comparáveis.";
+  }
+
+  function renderAdmin() {
+    syncBanner();
+    const st = getState();
+    const active = st.projects.filter(p=>p.status==="ativo");
+    const lat = active.map(p=>latestEval(st.evaluations,p.id)).filter(Boolean);
+    const scs = lat.map(e=>e.qualityScore).filter(v=>v!=null);
+    const avg = scs.length ? (scs.reduce((a,b)=>a+b,0)/scs.length).toFixed(1) : "—";
+    const best = scs.length ? Math.max(...scs).toFixed(1) : "—";
+    const evo = buildRankings("latest","").evolution[0];
+    $("kpis").innerHTML = [
+      ["Projetos", st.projects.length], ["Ativos", active.length], ["Auditados", lat.length],
+      ["Média Geral", avg], ["Melhor Score", best], ["Rodadas", st.rounds.length],
+      ["Maior Evolução", evo ? `${evo.abs>0?"+":""}${evo.abs} (${evo.project.projectName})` : "—"]
+    ].map(([l,v])=>`<div class="card" style="margin:0"><div class="sm muted">${l}</div><div style="font-size:20px;font-weight:800">${esc(v)}</div></div>`).join("");
+
+    // Catálogo + URLs duplicadas
+    const urlMap = new Map();
+    st.projects.forEach(p => { const u=(p.url||"").trim().toLowerCase().replace(/\/+$/,""); if(u){ if(!urlMap.has(u)) urlMap.set(u,[]); urlMap.get(u).push(p.projectName); } });
+    const dups = Array.from(urlMap.entries()).filter(([,v])=>v.length>1);
+    $("cat-alerts").innerHTML = dups.length ? `<div class="badge brb" style="margin-bottom:8px">URLs duplicadas: ${dups.map(([u,n])=>`${esc(u)} (${n.map(esc).join(", ")})`).join(" | ")}</div>` : "";
+    const fq = norm($("cat-q").value), fst = $("cat-st").value;
+    const list = st.projects.filter(p => (fst==="all"||p.status===fst) && (!fq || norm(`${p.teamName} ${p.projectName} ${p.url}`).includes(fq)));
+    $("cat-table").innerHTML = `<table><thead><tr><th>Projeto / Equipe</th><th>URL</th><th>Status</th><th>Score</th><th>Ações</th></tr></thead><tbody>
+      ${list.map(p => {
+        const ev = latestEval(st.evaluations, p.id);
+        return `<tr>
+          <td><strong>${esc(p.projectName)}</strong> ${p.isDemo?'<span class="badge bwb">DEMO</span>':""}<div class="sm muted">${esc(p.teamName)}</div></td>
+          <td class="sm">${p.url?`<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.url)}</a>`:"Sem protótipo"} ${ev&&ev.status==="failed"?'<span class="badge brb">Indisponível</span>':""}</td>
+          <td><span class="badge">${esc(p.status)}</span></td>
+          <td>${p.status==="em_desenvolvimento"?"Proposta":ev&&ev.qualityScore!=null?`<strong>${ev.qualityScore}</strong> (${ev.dataCoverage}%)`:ev&&ev.qualityScoreRaw!=null?`Prov. ${ev.qualityScoreRaw}`:"—"}</td>
+          <td class="row">
+            ${p.status!=="em_desenvolvimento"&&p.url?`<button class="btn bg sm btn-aud1" data-id="${esc(p.id)}">Auditar</button>`:""}
+            <button class="btn sm btn-man" data-id="${esc(p.id)}">Manual</button>
+            <button class="btn sm btn-rep" data-pid="${esc(p.id)}" data-eid="${esc(ev?ev.id:"")}">Relatório</button>
+            <button class="btn sm btn-edit" data-id="${esc(p.id)}">Editar</button>
+            <button class="btn sm br btn-del" data-id="${esc(p.id)}">Excluir</button>
+          </td>
+        </tr>`;
+      }).join("")}
+    </tbody></table>`;
+
+    // Rodadas
+    const rds = [...st.rounds].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    $("aud-rounds").innerHTML = rds.length ? `<table><thead><tr><th>Aula</th><th>Data</th><th>Resumo</th></tr></thead><tbody>
+      ${rds.map(r=>`<tr><td><strong>${esc(r.label)}</strong></td><td class="sm">${esc(fmtDt(r.date))}</td><td class="sm">${r.summary?.success||0} OK / ${r.summary?.failed||0} Falhas / ${r.summary?.skipped||0} Propostas</td></tr>`).join("")}
+    </tbody></table>` : '<p class="muted sm">Sem rodadas registradas.</p>';
+
+    // Pesos & Config
+    const qMap = [["seoOnPage","SEO On-page"],["contentKeywords","Conteúdo"],["uxUsability","UX"],["responsiveness","Responsividade"],["technicalPerformance","Performance"],["visualIdentity","Visual"],["conversionCta","CTA"]];
+    $("qw-box").innerHTML = qMap.map(([k,l])=>`<div class="row between" style="margin-bottom:4px"><span class="sm">${l} (%)</span><input class="in-num qw-i" data-k="${k}" type="number" min="0" max="100" value="${st.settings.qualityWeights[k]}"></div>`).join("");
+    const rMap = [["keywords","K — Palavras-chave"],["content","C — Conteúdo"],["seo","S — SEO"],["ux","U — UX"]];
+    $("rw-box").innerHTML = rMap.map(([k,l])=>`<div class="row between" style="margin-bottom:4px"><span class="sm">${l} (%)</span><input class="in-num rw-i" data-k="${k}" type="number" min="0" max="100" value="${st.settings.relevanceWeights[k]}"></div>`).join("");
+    $("cfg-worker").value = st.settings.workerUrl || "";
+    $("cfg-cov").value = st.settings.minCoverageForOfficial || 50;
+    const kb = (new Blob([localStorage.getItem(KEY)||""]).size/1024).toFixed(1);
+    $("db-stats").textContent = `Uso atual: ${kb} KB | ${st.projects.length} projetos | ${st.evaluations.length} avaliações | ${st.rounds.length} rodadas.`;
+  }
+
+  let curRep = { pid:null, eid:null };
+  function openReport(pid, eid, q) {
+    curRep = { pid, eid };
+    const st = getState(), p = st.projects.find(x=>x.id===pid);
+    if (!p) return;
+    const hist = st.evaluations.filter(e=>e.projectId===pid).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+    const ev = (eid && hist.find(e=>e.id===eid)) || hist[0];
+    if (!ev) { $("rep-body").innerHTML = `<p><strong>${esc(p.projectName)}</strong> — Nenhuma auditoria registrada ainda.</p>`; $("m-rep").classList.remove("hide"); return; }
+    const rel = q ? computeRelevance(p, ev, q, st.settings) : null;
+    const mob = ev.pagespeed?.mobile, dsk = ev.pagespeed?.desktop, seo = ev.seoOnPage||{};
+    $("rep-body").innerHTML = `
+      <div class="card">
+        <h3>${esc(p.projectName)} <span class="sm muted">(${esc(p.teamName)})</span></h3>
+        <div class="sm muted">Auditado: ${esc(fmtDt(ev.timestamp))} | Cobertura: <strong>${ev.dataCoverage}%</strong> (${ev.sufficientCoverage?"Oficial":"Provisório"})</div>
+        <div class="row" style="margin-top:8px">
+          <span class="badge bb">Score Qualidade: ${ev.qualityScore ?? "Prov. "+(ev.qualityScoreRaw??"N/D")}</span>
+          ${rel?`<span class="badge bgb">Relevância ("${esc(q)}"): ${rel.relevanceScore}</span>`:""}
+          <span class="badge">Mobile PSI: ${mob?.status==="available"?`P=${mob.scores.performance} S=${mob.scores.seo} A=${mob.scores.accessibility}`:"Indisp."}</span>
+          <span class="badge">Desktop PSI: ${dsk?.status==="available"?`P=${dsk.scores.performance} S=${dsk.scores.seo}`:"Indisp."}</span>
+        </div>
+      </div>
+      <div class="card"><h4>Critérios (Fonte &amp; Nota)</h4>
+        <table><thead><tr><th>Critério</th><th>Fonte</th><th>Nota</th><th>Detalhes</th></tr></thead><tbody>
+          ${Object.entries(ev.criteriaScores||{}).map(([k,v])=>`<tr><td>${esc(k)}</td><td><span class="badge">${esc(v.source)}</span></td><td><strong>${v.score??"Indisponível"}</strong></td><td class="sm muted">${(v.breakdown||[]).map(esc).join(" · ")}</td></tr>`).join("")}
+        </tbody></table>
+      </div>
+      <div class="grid">
+        <div class="card"><h4>SEO On-Page (${esc(seo.source||"unavailable")})</h4>
+          ${seo.status==="available" ? `<div class="sm">Title (${seo.titleLength}): ${esc(seo.title)}<br>H1: ${seo.h1Count} | H2: ${seo.h2Count} | Imgs sem ALT: ${seo.imagesWithoutAlt}/${seo.totalImages}<br>Palavras: ${seo.wordCount} | CTAs: ${seo.ctaCount} | Viewport: ${seo.hasViewport?"OK":"Não"}</div>` : `<div class="sm muted">Indisponível (${esc(seo.reason||"sem Worker")})</div>`}
+        </div>
+        <div class="card"><h4>Recomendações &amp; Histórico (${hist.length})</h4>
+          <ul class="sm" style="margin:0;padding-left:16px">${(ev.recommendations||[]).map(r=>`<li>${esc(r)}</li>`).join("") || "<li>Sem recomendações pendentes.</li>"}</ul>
+          <div class="sm muted" style="margin-top:6px">Evolução: ${hist.slice().reverse().map(h=>`${new Date(h.timestamp).toLocaleDateString("pt-BR")}: <strong>${h.qualityScoreRaw??"N/D"}</strong>`).join(" → ")}</div>
+        </div>
+      </div>`;
+    $("m-rep").classList.remove("hide");
+  }
+
+  /* ==================== AUDITORIA DA TURMA ==================== */
+  async function runBatch(retryOnly) {
+    const st = getState();
+    const list = retryOnly && lastFailIds.length ? st.projects.filter(p=>lastFailIds.includes(p.id)) : st.projects.filter(p=>p.status==="ativo"||p.status==="em_desenvolvimento");
+    if (!list.length) return toast("Nenhum projeto elegível.");
+    cancelAud = false;
+    const roundId = retryOnly && lastRoundId ? lastRoundId : uid("rnd");
+    const label = $("aud-label").value.trim() || `Aula — ${new Date().toLocaleDateString("pt-BR")}`;
+    const refQ = $("aud-query").value.trim();
+    const opts = { roundId, html:$("aud-html").checked, psi:$("aud-psi").checked };
+
+    if (!retryOnly) {
+      st.rounds.push({ id:roundId, label, date:new Date().toISOString(), referenceQuery:refQ, algorithmVersion:VER, status:"running", summary:{total:list.length,success:0,failed:0,skipped:0}, isDemo:false });
+      saveState(st);
+    }
+
+    const prog = $("aud-prog"), qEl = $("aud-queue"), fill = $("aud-fill"), cnt = $("aud-cnt");
+    prog.classList.remove("hide"); $("btn-cancel-aud").classList.remove("hide"); $("btn-retry-fail").classList.add("hide"); $("btn-run-round").disabled = true;
+    const sts = new Map(list.map(p=>[p.id, p.status==="em_desenvolvimento"?"Proposta":"Aguardando"]));
+    let done = 0, cur = 0; const res = [];
+    const draw = () => {
+      fill.style.width = Math.round((done/list.length)*100) + "%";
+      cnt.textContent = `${done}/${list.length}`;
+      qEl.innerHTML = list.map(p=>`<div class="card row between" style="margin:0;padding:6px 8px"><span class="sm">${esc(p.projectName)}</span><span class="badge">${esc(sts.get(p.id))}</span></div>`).join("");
+    };
+    draw();
+
+    async function worker() {
+      while (cur < list.length && !cancelAud) {
+        const p = list[cur++]; sts.set(p.id, "Processando..."); draw();
+        const ev = await auditOne(p, opts); res.push(ev);
+        sts.set(p.id, ev.status==="skipped_dev"?"Proposta (Sem nota)":ev.status==="failed"?"Necessita nova tentativa":"Concluído");
+        const sNow = getState();
+        if (retryOnly) sNow.evaluations = sNow.evaluations.filter(e=>!(e.roundId===roundId&&e.projectId===p.id));
+        sNow.evaluations.push(ev); saveState(sNow);
+        done++; draw();
+        if (cur < list.length && !cancelAud) await new Promise(r=>setTimeout(r, 600));
+      }
+    }
+    await Promise.all([worker(), ...(list.length>1?[worker()]:[])]);
+
+    const fin = getState(), rEvals = fin.evaluations.filter(e=>e.roundId===roundId);
+    const rd = fin.rounds.find(r=>r.id===roundId);
+    if (rd) { rd.status = cancelAud?"cancelled":"completed"; rd.summary = { total:rEvals.length, success:rEvals.filter(e=>e.status==="completed"||e.status==="partial").length, failed:rEvals.filter(e=>e.status==="failed").length, skipped:rEvals.filter(e=>e.status==="skipped_dev").length }; }
+    const posSnap = buildRankings(roundId, refQ).official.map(x=>({projectId:x.project.id, position:x.pos, qualityScore:x.quality}));
+    fin.rankingHistory = fin.rankingHistory.filter(h=>h.roundId!==roundId);
+    fin.rankingHistory.push({ id:uid("rh"), roundId, timestamp:new Date().toISOString(), entries:posSnap });
+    saveState(fin);
+
+    $("btn-run-round").disabled = false; $("btn-cancel-aud").classList.add("hide");
+    lastRoundId = roundId; lastFailIds = res.filter(r=>r.status==="failed").map(r=>r.projectId);
+    if (lastFailIds.length) $("btn-retry-fail").classList.remove("hide");
+    $("aud-status").textContent = cancelAud ? "Interrompida" : `Concluída (${lastFailIds.length} falha(s))`;
+    toast("Auditoria da rodada finalizada."); renderAdmin();
+  }
+
+  /* ==================== EVENTOS ==================== */
+  document.addEventListener("click", async (e) => {
+    const t = e.target;
+    if (t.dataset.view) return showView(t.dataset.view);
+    if (t.dataset.close) return $(t.dataset.close).classList.add("hide");
+    if (t.dataset.q) return doSearch(t.dataset.q);
+    if (t.dataset.rk) {
+      document.querySelectorAll("[data-rk]").forEach(b=>b.classList.toggle("on", b.dataset.rk===t.dataset.rk));
+      ["pos","evo","cat","cmp"].forEach(k=>$("rk-"+k).classList.toggle("hide", k!==t.dataset.rk));
+      return;
+    }
+    if (t.dataset.adm) {
+      document.querySelectorAll("[data-adm]").forEach(b=>b.classList.toggle("on", b.dataset.adm===t.dataset.adm));
+      ["catalog","audit","settings","json"].forEach(k=>$("adm-"+k).classList.toggle("hide", k!==t.dataset.adm));
+      return;
+    }
+    if (t.classList.contains("btn-rep")) return openReport(t.dataset.pid, t.dataset.eid, t.dataset.q || "");
+    if (t.id === "btn-cmp-go") return renderCmp();
+    if (t.classList.contains("btn-del")) {
+      if (confirm("Excluir projeto e avaliações?")) {
+        const s = getState(); s.projects = s.projects.filter(p=>p.id!==t.dataset.id); s.evaluations = s.evaluations.filter(x=>x.projectId!==t.dataset.id);
+        saveState(s); renderAdmin(); toast("Excluído.");
+      }
+    }
+    if (t.classList.contains("btn-edit")) {
+      const p = getState().projects.find(x=>x.id===t.dataset.id); if(!p) return;
+      $("mp-title").textContent="Editar Projeto"; $("p-id").value=p.id; $("p-team").value=p.teamName; $("p-name").value=p.projectName;
+      $("p-status").value=p.status; $("p-cat").value=p.category; $("p-url").value=p.url||""; $("p-desc").value=p.description||"";
+      $("p-aud").value=p.targetAudience||""; $("p-obj").value=p.objective||""; $("p-kp").value=(p.primaryKeywords||[]).join(", "); $("p-ks").value=(p.secondaryKeywords||[]).join(", ");
+      $("m-proj").classList.remove("hide");
+    }
+    if (t.classList.contains("btn-man")) {
+      const p = getState().projects.find(x=>x.id===t.dataset.id); if(!p) return;
+      $("man-pid").value=p.id; $("man-sub").textContent=`${p.projectName} — ${p.teamName}`; $("f-man").reset(); $("m-man").classList.remove("hide");
+    }
+    if (t.classList.contains("btn-aud1")) {
+      const p = getState().projects.find(x=>x.id===t.dataset.id); if(!p) return;
+      t.disabled=true; t.textContent="...";
+      const ev = await auditOne(p, {html:true, psi:true});
+      const s = getState(); s.evaluations.push(ev); saveState(s); renderAdmin();
+      toast(ev.status==="failed"?"Falha: "+(ev.errorMessage||"URL"):`Auditado (${ev.dataCoverage}%)`);
+    }
+  });
+
+  $("btn-proj-mode").onclick = (e) => { document.body.classList.toggle("proj"); e.target.textContent = document.body.classList.contains("proj")?"Projetor: ON":"Projetor: OFF"; };
+  $("btn-clear-demo").onclick = () => { if(confirm("Remover exemplos [DEMO]?")) { const s=getState(); s.projects=s.projects.filter(p=>!p.isDemo); s.rounds=s.rounds.filter(r=>!r.isDemo); s.evaluations=s.evaluations.filter(e=>!e.isDemo); s.rankingHistory=s.rankingHistory.filter(h=>!h.isDemo); saveState(s); syncBanner(); renderAdmin(); toast("Exemplos removidos."); } };
+  $("f-search").onsubmit = (e) => { e.preventDefault(); doSearch($("q-in").value); };
+  $("btn-q-clear").onclick = () => doSearch("");
+  $("chk-dev").onchange = () => { if($("q-in").value.trim()) doSearch($("q-in").value); };
+  $("btn-rk-go").onclick = renderRankings;
+  $("btn-jump-audit").onclick = () => { showView("admin"); document.querySelector('[data-adm="audit"]').click(); };
+  $("btn-new-proj").onclick = () => { $("f-proj").reset(); $("p-id").value=""; $("mp-title").textContent="Cadastrar Projeto"; $("m-proj").classList.remove("hide"); };
+  $("cat-q").oninput = renderAdmin; $("cat-st").onchange = renderAdmin;
+  $("btn-run-round").onclick = () => runBatch(false);
+  $("btn-retry-fail").onclick = () => runBatch(true);
+  $("btn-cancel-aud").onclick = () => { cancelAud = true; };
+
+  $("btn-test-url").onclick = async () => {
+    const chk = validateUrl($("p-url").value); $("p-url-msg").textContent = chk.ok ? (chk.gh?"URL GitHub Pages válida.":"URL pública válida.") : chk.msg;
+  };
+
+  $("f-proj").onsubmit = (e) => {
+    e.preventDefault();
+    const uRaw = $("p-url").value.trim(); let normU = "";
+    if (uRaw) { const c = validateUrl(uRaw); if(!c.ok) return toast(c.msg); normU = c.url; }
+    const s = getState(), id = $("p-id").value, now = new Date().toISOString();
+    const item = { id:id||uid("p"), teamName:$("p-team").value.trim(), projectName:$("p-name").value.trim(), status:$("p-status").value, category:$("p-cat").value.trim(), url:normU, description:$("p-desc").value.trim(), targetAudience:$("p-aud").value.trim(), objective:$("p-obj").value.trim(), primaryKeywords:$("p-kp").value.split(",").map(x=>x.trim()).filter(Boolean), secondaryKeywords:$("p-ks").value.split(",").map(x=>x.trim()).filter(Boolean), updatedAt:now, createdAt:now, isDemo:false };
+    if (id) { const i=s.projects.findIndex(x=>x.id===id); if(i>-1) s.projects[i]={...s.projects[i],...item,createdAt:s.projects[i].createdAt}; } else s.projects.push(item);
+    saveState(s); $("m-proj").classList.add("hide"); renderAdmin(); toast("Projeto salvo.");
+  };
+
+  $("f-man").onsubmit = (e) => {
+    e.preventDefault();
+    const pid = $("man-pid").value, s = getState(), p = s.projects.find(x=>x.id===pid); if(!p) return;
+    const val = (id) => $(id).value!=="" ? Number($(id).value) : null;
+    const mr = { source:"manual", status:"available", updatedAt:new Date().toISOString(), uxUsability:val("man-ux"), visualIdentity:val("man-vis"), contentClarity:val("man-cla"), ctaEffectiveness:val("man-cta"), notes:$("man-notes").value.trim() };
+    let ev = latestEval(s.evaluations, pid);
+    if (ev) {
+      ev.manualReview = mr;
+      Object.assign(ev, scoreEvaluation({seoOnPage:ev.seoOnPage, pagespeed:ev.pagespeed}, mr, p, s.settings));
+    } else {
+      const calc = scoreEvaluation({seoOnPage:{status:"unavailable"}, pagespeed:{mobile:{status:"unavailable"},desktop:{status:"unavailable"}}}, mr, p, s.settings);
+      s.evaluations.push({ id:uid("ev"), projectId:pid, roundId:null, timestamp:mr.updatedAt, algorithmVersion:VER, status:"partial", seoOnPage:{status:"unavailable"}, pagespeed:{mobile:{status:"unavailable"},desktop:{status:"unavailable"}}, manualReview:mr, ...calc, isDemo:false });
+    }
+    saveState(s); $("m-man").classList.add("hide"); renderAdmin(); toast("Nota manual aplicada.");
+  };
+
+  const saveWeights = (sel, key) => {
+    const obj = {}; let sum = 0;
+    document.querySelectorAll(sel).forEach(i => { obj[i.dataset.k] = Number(i.value||0); sum += obj[i.dataset.k]; });
+    if (Math.round(sum)!==100) return toast(`A soma deve ser 100% (atual: ${sum}%).`);
+    const s = getState(); s.settings[key] = obj; saveState(s); toast("Pesos salvos.");
+  };
+  $("btn-save-qw").onclick = () => saveWeights(".qw-i", "qualityWeights");
+  $("btn-save-rw").onclick = () => saveWeights(".rw-i", "relevanceWeights");
+  $("btn-rst-qw").onclick = () => { const s=getState(); s.settings.qualityWeights={...DEF_SET.qualityWeights}; saveState(s); renderAdmin(); };
+  $("btn-rst-rw").onclick = () => { const s=getState(); s.settings.relevanceWeights={...DEF_SET.relevanceWeights}; saveState(s); renderAdmin(); };
+  $("btn-save-cfg").onclick = () => {
+    const w = $("cfg-worker").value.trim().replace(/\/+$/,"");
+    if (w && !validateUrl(w).ok) return toast("URL do Worker inválida.");
+    const s = getState(); s.settings.workerUrl = w; s.settings.minCoverageForOfficial = Number($("cfg-cov").value||50); saveState(s); toast("Integração salva.");
+  };
+  $("btn-test-worker").onclick = async () => {
+    const w = $("cfg-worker").value.trim().replace(/\/+$/,""); if(!w) return;
+    try { const r=await fetch(w+"/health"), j=await r.json(); $("worker-msg").textContent = j.ok ? `Worker OK (v${j.version})` : "Erro"; }
+    catch(e) { $("worker-msg").textContent = "Falha: "+e.message; }
+  };
+
+  $("btn-exp-json").onclick = () => {
+    const blob = new Blob([JSON.stringify(getState(),null,2)], {type:"application/json"});
+    const a = document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`buscaweb-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  };
+  $("btn-load-demo").onclick = () => { const d=demoSeed(); saveState(d); renderAdmin(); toast("Demo restaurado."); };
+  $("btn-rst-db").onclick = () => { if(confirm("Zerar todos os dados deste navegador?")) { saveState(emptyState()); renderAdmin(); toast("Banco zerado."); } };
+  $("btn-imp-json").onclick = () => {
+    const f = $("imp-file").files[0]; if(!f) return toast("Selecione um .json.");
+    const mode = document.querySelector('input[name="imp-mode"]:checked').value;
+    if (mode==="replace" && !confirm("Substituir todos os dados atuais?")) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      try {
+        const inc = JSON.parse(rd.result);
+        if (!inc || inc.system!=="BuscaWeb" || !Array.isArray(inc.projects)) return toast("JSON inválido.");
+        localStorage.setItem(BKP, localStorage.getItem(KEY)||"");
+        if (mode==="replace") { saveState(inc); }
+        else {
+          const cur = getState();
+          const merge = (a,b) => { const m=new Map(a.map(x=>[x.id,x])); b.forEach(x=>{if(!m.has(x.id)) m.set(x.id,x);}); return Array.from(m.values()); };
+          cur.projects=merge(cur.projects,inc.projects); cur.evaluations=merge(cur.evaluations,inc.evaluations||[]);
+          cur.rounds=merge(cur.rounds,inc.rounds||[]); cur.rankingHistory=merge(cur.rankingHistory,inc.rankingHistory||[]);
+          saveState(cur);
+        }
+        $("imp-msg").textContent="Importação concluída!"; renderAdmin(); toast("Importado!");
+      } catch(e) { toast("Erro JSON: "+e.message); }
+    };
+    rd.readAsText(f);
+  };
+  $("btn-rep-json").onclick = () => {
+    if (!curRep.pid) return;
+    const s = getState(), data = { project:s.projects.find(p=>p.id===curRep.pid), evaluations:s.evaluations.filter(e=>e.projectId===curRep.pid) };
+    const a = document.createElement("a"); a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"})); a.download=`relatorio-${curRep.pid}.json`; a.click();
+  };
+
+  getState(); syncBanner();
+})();
+</script>
+</body>
+</html>
