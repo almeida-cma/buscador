@@ -958,6 +958,7 @@
     const t = e.target;
     if (t.dataset.view) return showView(t.dataset.view);
     if (t.dataset.close) return $(t.dataset.close).classList.add("hide");
+    if (t.classList.contains("btn-rep")) return openReport(t.dataset.pid, t.dataset.eid, t.dataset.q || "");
     if (t.classList.contains("chip") && t.dataset.q) return doSearch(t.dataset.q);
     if (t.dataset.rk) {
       document.querySelectorAll("[data-rk]").forEach(b=>b.classList.toggle("on", b.dataset.rk===t.dataset.rk));
@@ -969,7 +970,6 @@
       ["catalog","audit","settings","json"].forEach(k=>$("adm-"+k).classList.toggle("hide", k!==t.dataset.adm));
       return;
     }
-    if (t.classList.contains("btn-rep")) return openReport(t.dataset.pid, t.dataset.eid, t.dataset.q || "");
     if (t.id === "btn-cmp-go") return renderCmp();
     if (t.classList.contains("btn-del")) {
       if (confirm("Excluir projeto e avaliações?")) {
