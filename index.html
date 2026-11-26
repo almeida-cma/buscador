@@ -958,7 +958,7 @@
     const t = e.target;
     if (t.dataset.view) return showView(t.dataset.view);
     if (t.dataset.close) return $(t.dataset.close).classList.add("hide");
-    if (t.dataset.q) return doSearch(t.dataset.q);
+    if (t.classList.contains("chip") && t.dataset.q) return doSearch(t.dataset.q);
     if (t.dataset.rk) {
       document.querySelectorAll("[data-rk]").forEach(b=>b.classList.toggle("on", b.dataset.rk===t.dataset.rk));
       ["pos","evo","cat","cmp"].forEach(k=>$("rk-"+k).classList.toggle("hide", k!==t.dataset.rk));
